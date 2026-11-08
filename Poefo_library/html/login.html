@@ -15,6 +15,7 @@
     <script src="../scripts/firebase-config.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-functions.js"></script>
     <script src="../scripts/auth-profile.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -72,7 +73,7 @@
             <span>Continuar com Google</span>
         </button>
         <p id="auth-feedback" role="status" aria-live="polite" class="auth-feedback"></p>
-        <a href="./cadastro.html" class="criaracont">Não possui login ?/ Criar Conta</a> <i
+        <a href="/cadastro" class="criaracont">Não possui login ?/ Criar Conta</a> <i
             class="fa-solid fa-square-code watermark-icon"></i>
     </div>
 
@@ -93,6 +94,7 @@
             const btnGoogle = document.getElementById('btn-google');
             const btnForgotPassword = document.getElementById('btn-esqueci-senha');
             const authFeedback = document.getElementById('auth-feedback');
+            const googleSignupStorageKey = 'poefoGoogleSignup';
 
             // Aqui eu controlo o botão que mostra ou oculta a senha.
             const togglePasswordButton = document.getElementById('togglePassword');
@@ -130,7 +132,7 @@
                 }
                 feedback.textContent = `Login efetuado como ${profile.data.nome_usuario || authUser.email}! Redirecionando...`;
                 window.setTimeout(() => {
-                    window.location.href = './splash.html';
+                    window.location.href = '/carregando';
                 }, 800);
             }
 
@@ -219,14 +221,52 @@
                 authFeedback.textContent = 'Conectando com o Google...';
                 try {
                     const provider = new firebase.auth.GoogleAuthProvider();
-                    const credential = await auth.signInWithPopup(provider);
-                    const profile = await PoefoAuthProfile.createProfileForAuthUser(credential.user);
-                    PoefoAuthProfile.saveSession(profile, credential.user);
+                    let googleIdToken;
+                    try {
+                        const signInResult = await auth.signInWithPopup(provider);
+                        const googleCredential = typeof firebase.auth.GoogleAuthProvider.credentialFromResult === 'function'
+                            ? firebase.auth.GoogleAuthProvider.credentialFromResult(signInResult)
+                            : signInResult.credential;
+                        googleIdToken = googleCredential?.idToken;
+                    } catch (popupError) {
+                        googleIdToken = popupError?.credential?.idToken;
+                        if (!googleIdToken) throw popupError;
+                    }
+
+                    if (!googleIdToken) {
+                        throw new Error('O Google não retornou um token de identidade válido.');
+                    }
+
+                    const loginWithGoogleIdentity = firebase.functions().httpsCallable('loginWithGoogleIdentity');
+                    const response = await loginWithGoogleIdentity({ idToken: googleIdToken });
+                    const googleLogin = response.data;
+                    if (!googleLogin?.token || !googleLogin.email || !googleLogin.fullName) {
+                        throw new Error('O servidor não retornou os dados necessários para concluir o login.');
+                    }
+
+                    const authCredential = await auth.signInWithCustomToken(googleLogin.token);
+                    if (!googleLogin.profileExists) {
+                        sessionStorage.setItem(googleSignupStorageKey, JSON.stringify({
+                            email: googleLogin.email,
+                            fullName: googleLogin.fullName
+                        }));
+                        authFeedback.textContent = 'E-mail não cadastrado. Continue criando sua conta Poefo...';
+                        window.location.href = '/cadastro';
+                        return;
+                    }
+
+                    let profile = await PoefoAuthProfile.findByAuthUid(authCredential.user.uid);
+                    profile = profile || await PoefoAuthProfile.findByEmail(googleLogin.email);
+                    if (!profile) {
+                        throw new Error('O perfil Poefo não foi encontrado após a validação. Tente novamente.');
+                    }
+                    const linkedProfile = await PoefoAuthProfile.attachAuthUser(profile, authCredential.user);
+                    PoefoAuthProfile.saveSession(linkedProfile, authCredential.user);
                     authFeedback.textContent = 'Login efetuado. Redirecionando...';
-                    window.location.href = './splash.html';
+                    window.location.href = '/carregando';
                 } catch (error) {
                     console.error('Erro no login com Google:', error);
-                    authFeedback.textContent = `Não foi possível entrar com Google: ${error.message}`;
+                    authFeedback.textContent = `Não foi possível entrar com Google: ${error.message || 'Tente novamente.'}`;
                     if (auth.currentUser) {
                         try {
                             await auth.signOut();

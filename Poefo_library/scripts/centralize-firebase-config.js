@@ -9,11 +9,11 @@ const pages = [
   'html/livro.html',
   'html/login.html',
   'html/perfil.html',
-  'html/visualizador_perfil.html',
-  'games/anagrama_literario.html',
-  'games/cassa_palavras.html',
-  'games/memoria_literaria.html',
-  'games/quiz_literario.html'
+  'html/perfil-usuario.html',
+  'games/anagrama-literario.html',
+  'games/caca-palavras.html',
+  'games/memoria-literaria.html',
+  'games/quiz-literario.html'
 ];
 const scriptFiles = [
   'script_progress.js',
@@ -80,7 +80,7 @@ for (const relative of pages) {
 }
 
 // Update game pages import path if needed
-for (const relative of ['games/anagrama_literario.html', 'games/cassa_palavras.html', 'games/memoria_literaria.html', 'games/quiz_literario.html']) {
+for (const relative of ['games/anagrama-literario.html', 'games/caca-palavras.html', 'games/memoria-literaria.html', 'games/quiz-literario.html']) {
   const filePath = path.join(projectRoot, relative);
   insertConfigImport(filePath, '../scripts/firebase-config.js');
 }

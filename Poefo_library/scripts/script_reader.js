@@ -10,6 +10,7 @@ let readerBookId = null;
 let readerBookProgress = null;
 let readerCurrentPage = 1;
 let readerViewMode = getInitialReaderViewMode();
+let isReloadingForViewMode = false;
 let pendingReaderPage = null;
 let toolbarHideTimeout = null;
 let pageWrappers = [];
@@ -26,6 +27,15 @@ let isDragging = false;
 let lastDist = 0;
 
 function getInitialReaderViewMode() {
+    try {
+        const reloadMode = sessionStorage.getItem('poefo_reader_reload_mode');
+        if (reloadMode === 'single' || reloadMode === 'double' || reloadMode === 'scroll') {
+            sessionStorage.removeItem('poefo_reader_reload_mode');
+            return reloadMode;
+        }
+    } catch (error) {
+        console.warn('Não foi possível carregar o modo de leitura após recarregar:', error);
+    }
     try {
         const savedMode = localStorage.getItem('poefo_reader_view_mode');
         if (savedMode === 'single' || savedMode === 'double' || savedMode === 'scroll') return savedMode;
@@ -59,6 +69,7 @@ async function initReader() {
             );
             document.getElementById('page-num').textContent = readerCurrentPage;
         }
+        restoreReaderPageAfterModeChange(pdfDoc.numPages);
         createPageSlots();
         setupPageFlip();
         await renderPagesAround(readerCurrentPage);
@@ -90,6 +101,21 @@ function showReaderError() {
     const overlay = document.getElementById('loading-overlay');
     overlay.innerHTML = '<p class="reader-error">Não foi possível visualizar este arquivo. Abra o arquivo original para continuar.</p>';
     overlay.style.display = 'flex';
+}
+
+function restoreReaderPageAfterModeChange(pageCount) {
+    try {
+        const savedState = sessionStorage.getItem('poefo_reader_reload_page');
+        if (!savedState) return;
+        sessionStorage.removeItem('poefo_reader_reload_page');
+
+        const { bookId, page } = JSON.parse(savedState);
+        if (bookId !== readerBookId || !Number.isInteger(page)) return;
+        readerCurrentPage = Math.min(Math.max(1, page), pageCount);
+        document.getElementById('page-num').textContent = readerCurrentPage;
+    } catch (error) {
+        console.warn('Não foi possível restaurar a página após alterar o modo de leitura:', error);
+    }
 }
 
 function createPageSlots() {
@@ -291,8 +317,8 @@ function updatePageIndicator() {
     }
 }
 
-async function changeReaderViewMode(nextMode) {
-    if (!['single', 'double', 'scroll'].includes(nextMode) || nextMode === readerViewMode) return;
+function changeReaderViewMode(nextMode) {
+    if (isReloadingForViewMode || !['single', 'double', 'scroll'].includes(nextMode) || nextMode === readerViewMode) return;
     showReaderToolbar();
     readerViewMode = nextMode;
     try {
@@ -300,38 +326,19 @@ async function changeReaderViewMode(nextMode) {
     } catch (error) {
         console.warn('Não foi possível salvar a preferência de visualização:', error);
     }
-
-    if (!pdfDoc) {
-        applyReaderViewMode();
-        return;
-    }
-
+    isReloadingForViewMode = true;
+    const modeSelect = document.getElementById('page-view-mode');
+    if (modeSelect) modeSelect.disabled = true;
     try {
-        pageRenderRequestId += 1;
-        await Promise.allSettled(Array.from(pageRenderPromises.values()));
-        for (const [pageNumber, renderedPage] of renderedPages) {
-            if (renderedPage.hasDrawing) {
-                pageDrawings.set(pageNumber, renderedPage.drawCanvas.toDataURL('image/png'));
-            }
-        }
-        if (pageFlip) {
-            pageFlip.destroy();
-            pageFlip = null;
-        }
-        renderedPages.clear();
-        pageRenderPromises.clear();
-        createPageSlots();
-        resetZoom();
-        setupPageFlip();
-
-        await renderPagesAround(readerCurrentPage);
-        if (readerViewMode === 'scroll') {
-            scrollToReaderPage(readerCurrentPage, 'auto');
-        }
+        sessionStorage.setItem('poefo_reader_reload_mode', readerViewMode);
+        sessionStorage.setItem('poefo_reader_reload_page', JSON.stringify({
+            bookId: readerBookId,
+            page: pendingReaderPage ?? readerCurrentPage
+        }));
     } catch (error) {
-        console.error('Não foi possível preparar as páginas do PDF:', error);
-        showReaderError();
+        console.warn('Não foi possível salvar a página atual antes de recarregar o leitor:', error);
     }
+    window.location.reload();
 }
 
 document.getElementById('page-view-mode').addEventListener('change', (event) => {

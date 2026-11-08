@@ -733,7 +733,7 @@ async function openSelectedUserProfile() {
     const otherId = currentParticipants.find(id => id !== currentUserId);
     if (!otherId) return;
     sessionStorage.setItem('viewUserId', otherId);
-    window.location.href = './visualizador_perfil.html';
+    window.location.href = '/perfil-usuario';
 }
 
 function showCallOptions() {
@@ -938,7 +938,7 @@ function renderBookClubPanel(book) {
         open.innerHTML = '<i class="fas fa-book-open"></i> Ler';
         open.addEventListener('click', () => {
             sessionStorage.setItem('selectedBook', JSON.stringify(book));
-            window.location.href = './livro.html';
+            window.location.href = '/livro';
         });
         actions.appendChild(open);
     }
@@ -1852,7 +1852,7 @@ function renderMessage(msg, container, messageId, convId) {
         openButton.textContent = 'Ver livro';
         openButton.addEventListener('click', () => {
             sessionStorage.setItem('selectedBook', JSON.stringify(book));
-            window.location.href = './livro.html';
+            window.location.href = '/livro';
         });
         details.append(title, openButton);
         card.append(cover, details);
@@ -1919,14 +1919,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
     if (!authUser) {
-        window.location.replace('./login.html');
+        window.location.replace('/login');
         return;
     }
 
     const profile = await PoefoAuthProfile.findByAuthUid(authUser.uid);
     if (!profile || profile.data.bloqueado === true) {
         await firebase.auth().signOut();
-        window.location.replace('./login.html');
+        window.location.replace('/login');
         return;
     }
     PoefoAuthProfile.saveSession(profile, authUser);

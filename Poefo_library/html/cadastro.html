@@ -93,6 +93,34 @@
         const feedback = document.getElementById('feedback');
         const inputFoto = document.getElementById('foto_perfil');
         const labelFoto = document.getElementById('file-label');
+        const googleSignupStorageKey = 'poefoGoogleSignup';
+        const googleSignupData = sessionStorage.getItem(googleSignupStorageKey);
+        let pendingGoogleSignup = null;
+
+        if (googleSignupData) {
+            try {
+                pendingGoogleSignup = JSON.parse(googleSignupData);
+                if (!pendingGoogleSignup?.email || !pendingGoogleSignup?.fullName) {
+                    throw new Error('Os dados recebidos do Google estão incompletos.');
+                }
+                document.getElementById('email').value = pendingGoogleSignup.email;
+                document.getElementById('email').readOnly = true;
+                document.getElementById('nome_completo').value = pendingGoogleSignup.fullName;
+                document.getElementById('nome_completo').readOnly = true;
+                document.getElementById('nome_usuario').value = pendingGoogleSignup.fullName
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '')
+                    .toLowerCase()
+                    .replace(/[^a-z0-9._-]/g, '')
+                    .slice(0, 24) || 'leitor';
+                feedback.textContent = 'Dados do Google preenchidos. Crie sua senha Poefo para concluir o cadastro.';
+            } catch (error) {
+                console.error('Não foi possível carregar os dados Google para o cadastro:', error);
+                pendingGoogleSignup = null;
+                sessionStorage.removeItem(googleSignupStorageKey);
+                feedback.textContent = 'Não foi possível validar os dados do Google. Inicie o cadastro novamente pelo login.';
+            }
+        }
 
         // Adiciona funcionalidade de clique à label do campo de arquivo
         labelFoto.addEventListener('click', () => {
@@ -146,6 +174,8 @@
             const senha = document.getElementById('senha').value;
             const confirmar_senha = document.getElementById('confirmar_senha').value;
             let foto_url = DEFAULT_PROFILE_PIC;
+            const googleAuthUser = firebase.auth().currentUser;
+            const isGoogleSignup = Boolean(pendingGoogleSignup);
             
             if (senha !== confirmar_senha) {
                 feedback.textContent = '❌ Erro: A senha e a confirmação de senha não coincidem!';
@@ -154,6 +184,24 @@
             }
 
             try {
+                if (isGoogleSignup) {
+                    const normalizeIdentity = value => String(value || '').trim().replace(/\s+/g, ' ').toLocaleLowerCase('pt-BR');
+                    const tokenResult = googleAuthUser && await googleAuthUser.getIdTokenResult();
+                    const googleIdentity = tokenResult?.claims;
+                    if (!googleAuthUser
+                        || googleIdentity?.poefoGoogleProfileExists !== false
+                        || googleIdentity?.poefoGoogleEmail !== pendingGoogleSignup.email
+                        || normalizeIdentity(googleIdentity?.poefoGoogleFullName) !== normalizeIdentity(pendingGoogleSignup.fullName)
+                        || email !== pendingGoogleSignup.email
+                        || normalizeIdentity(nome_completo) !== normalizeIdentity(pendingGoogleSignup.fullName)) {
+                        throw new Error('A sessão Google expirou ou os dados de identidade não correspondem. Inicie novamente pelo login.');
+                    }
+                    if (await PoefoAuthProfile.findByEmail(email)) {
+                        throw new Error('Já existe um perfil Poefo para este e-mail. Entre pelo login.');
+                    }
+                    foto_url = googleAuthUser.photoURL || foto_url;
+                }
+
                 // 1. VERIFICAÇÃO DE DUPLICIDADE NO RTDB
                 feedback.textContent = 'Verificando duplicidade de Nome de Usuário...';
                 
@@ -176,7 +224,22 @@
                 }
 
                 feedback.textContent = 'Criando sua conta protegida...';
-                const credential = await firebase.auth().createUserWithEmailAndPassword(email, senha);
+                let credential;
+                if (isGoogleSignup) {
+                    const hasPasswordProvider = googleAuthUser.providerData.some(
+                        provider => provider.providerId === 'password'
+                    );
+                    if (hasPasswordProvider) {
+                        await googleAuthUser.updatePassword(senha);
+                        credential = { user: googleAuthUser };
+                    } else {
+                        credential = await googleAuthUser.linkWithCredential(
+                            firebase.auth.EmailAuthProvider.credential(email, senha)
+                        );
+                    }
+                } else {
+                    credential = await firebase.auth().createUserWithEmailAndPassword(email, senha);
+                }
                 const novoUsuarioRef = database.ref('usuarios').push();
                 const novoUsuario = {
                     authUid: credential.user.uid,
@@ -190,10 +253,12 @@
                 try {
                     await novoUsuarioRef.set(novoUsuario);
                 } catch (databaseError) {
-                    try {
-                        await credential.user.delete();
-                    } catch (rollbackError) {
-                        console.error('Não foi possível desfazer a conta Auth após falha ao salvar o perfil:', rollbackError);
+                    if (!isGoogleSignup) {
+                        try {
+                            await credential.user.delete();
+                        } catch (rollbackError) {
+                            console.error('Não foi possível desfazer a conta Auth após falha ao salvar o perfil:', rollbackError);
+                        }
                     }
                     throw databaseError;
                 }
@@ -201,9 +266,10 @@
                 // Sucesso
                 const profile = await PoefoAuthProfile.attachAuthUser({ id: novoUsuarioRef.key, data: novoUsuario }, credential.user);
                 PoefoAuthProfile.saveSession(profile, credential.user);
+                if (isGoogleSignup) sessionStorage.removeItem(googleSignupStorageKey);
                 feedback.textContent = `✅ Sucesso! Perfil ${nome_usuario} criado. Redirecionando...`;
                 setTimeout(() => {
-                    window.location.href = './splash.html';
+                    window.location.href = '/carregando';
                 }, 800);
 
             } catch (error) {

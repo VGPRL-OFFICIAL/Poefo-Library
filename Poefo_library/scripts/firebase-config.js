@@ -36,7 +36,8 @@ window.POEFO_FCM_VAPID_KEY = 'COLOQUE_SUA_PUBLIC_VAPID_KEY_AQUI';
   }
 
   async function registerForegroundChatNotifications() {
-    if (window.location.pathname.endsWith('/html/chat.html')
+    if (window.location.pathname === '/chat'
+      || window.location.pathname.endsWith('/html/chat.html')
       || !('Notification' in window)
       || Notification.permission !== 'granted'
       || !('serviceWorker' in navigator)) return;

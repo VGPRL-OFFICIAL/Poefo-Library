@@ -41,7 +41,7 @@ function createBookItem(bookData) {
     `;
     item.addEventListener('click', () => {
         sessionStorage.setItem('selectedBook', JSON.stringify(bookData));
-        window.location.href = './livro.html';
+        window.location.href = '/livro';
     });
     return item;
 }
@@ -66,11 +66,11 @@ function createCarouselItem(bookData) {
     item.querySelector('.detail-button').addEventListener('click', (e) => {
         e.stopPropagation();
         sessionStorage.setItem('selectedBook', JSON.stringify(bookData));
-        window.location.href = './livro.html';
+        window.location.href = '/livro';
     });
     item.addEventListener('click', () => {
         sessionStorage.setItem('selectedBook', JSON.stringify(bookData));
-        window.location.href = './livro.html';
+        window.location.href = '/livro';
     });
     return item;
 }

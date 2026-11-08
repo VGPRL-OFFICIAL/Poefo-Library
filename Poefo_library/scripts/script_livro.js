@@ -319,18 +319,18 @@ function setupEventListeners(book) {
         lerBtnMain.onclick = function() {
             sessionStorage.setItem('readerUrl', book.link_acesso);
             sessionStorage.setItem('readerBookId', String(book.id));
-            window.location.href = './reader.html';
+            window.location.href = '/leitor';
         };
     }
 
     document.getElementById('invite-publication-btn')?.addEventListener('click', () => {
         sessionStorage.setItem('pendingBookPublicationInvite', JSON.stringify(createBookInvitePayload(book)));
-        window.location.href = './publicador.html';
+        window.location.href = '/publicar';
     });
 
     document.getElementById('invite-contact-btn')?.addEventListener('click', () => {
         sessionStorage.setItem('pendingBookChatInvite', JSON.stringify(createBookInvitePayload(book)));
-        window.location.href = './chat.html';
+        window.location.href = '/chat';
     });
 
     const commentInput = document.querySelector('.bottom-bar .search-input');

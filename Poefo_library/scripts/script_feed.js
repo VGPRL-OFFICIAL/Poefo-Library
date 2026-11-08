@@ -131,7 +131,7 @@ function renderTrendsFromPosts(posts, limit = 5) {
 // ----------------------------------------------------------------------
 
 /**
- * Salva o livro na sessão e redireciona para a página de detalhes (livro.html).
+ * Salva o livro na sessão e redireciona para a página de detalhes (/livro).
  * @param {string} bookId ID do livro para carregar.
  */
 function openBookDetails(bookId) {
@@ -141,7 +141,7 @@ function openBookDetails(bookId) {
         sessionStorage.setItem('selectedBook', JSON.stringify(book)); 
         
         // Redireciona APENAS para a página de detalhes do livro
-        window.location.href = './livro.html'; 
+        window.location.href = '/livro';
     } else {
         console.error('Livro não encontrado para ID:', bookId);
         alert('Erro: Livro não encontrado.');
@@ -268,7 +268,7 @@ function shareFeedPost(post) {
         text: String(post.content || '').slice(0, 1000),
         attachment
     }));
-    window.location.href = './chat.html';
+    window.location.href = '/chat';
 }
 
 async function deleteFeedPost(post) {
@@ -657,7 +657,7 @@ function createPostElement(post) {
             const uid = el.getAttribute('data-user-id');
             if (uid) {
                 sessionStorage.setItem('viewUserId', uid);
-                window.location.href = './visualizador_perfil.html';
+                window.location.href = '/perfil-usuario';
             }
         });
     });

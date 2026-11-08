@@ -1,107 +1,801 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página Não Encontrada - 404</title>
+    <title>404 - Página Não Encontrada | POEFO Library</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fontes Google Inter, Playfair Display e Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        poefo: {
+                            black: '#0a0a0a',
+                            dark: '#171717',
+                            gray: '#737373',
+                            lightgray: '#e5e5e5',
+                            offwhite: '#f9f9fb',
+                            white: '#ffffff'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
-
-        :root {
-            --primary-color: #424242; /* Azul escuro */
-            --secondary-color: #424242; /* Azul claro */
-            --text-color: #ecf0f1; /* Cinza claro */
-            --background-color: #f8f8f8; /* Fundo bem claro */
-            --error-color: #e74c3c; /* Vermelho */
-        }
-
+        /* Estilos e Animações Customizadas */
         body {
-            font-family: 'Montserrat', sans-serif;
-            margin: 0;
-            padding: 0;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            overflow-y: auto;
+            user-select: none;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        body.overflow-hidden {
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .brand-logo {
             display: flex;
-            justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            background-color: var(--background-color);
-            color: var(--primary-color);
-            text-align: center;
-        }
-
-       
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        h1 {
-            font-size: 8em; /* Grande para o 404 */
-            margin: 0;
-            color: var(--error-color);
-            line-height: 1;
-            font-weight: 700;
-        }
-
-        h2 {
-            font-size: 2em;
-            color: var(--primary-color);
-            margin-top: 10px;
-        }
-
-        p {
-            font-size: 1.1em;
-            line-height: 1.6;
-            color: var(--primary-color);
-            margin-bottom: 30px;
-        }
-
-        .button {
-            display: inline-block;
-            background-color: var(--secondary-color);
-            color: #fff;
-            padding: 12px 25px;
-            border-radius: 5px;
+            gap: 10px;
             text-decoration: none;
+            min-width: 0;
+        }
+
+        .brand-logo img {
+            width: 28px;
+            height: 28px;
+            flex: 0 0 28px;
+            object-fit: contain;
+            filter: grayscale(1);
+        }
+
+        .brand-logo-name {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 20px;
             font-weight: 700;
-            transition: background-color 0.3s ease;
+            letter-spacing: -0.5px;
         }
 
-        .button:hover {
-            background-color: #2980b9; /* Um tom mais escuro */
+        header {
+            padding-top: 0 !important;
         }
 
-        /* Responsividade básica */
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 6em;
+        #parallaxScene {
+            width: 100%;
+            min-height: 0;
+            padding: 2rem 1rem;
+        }
+
+        #newspaperCard {
+            width: clamp(9rem, 52vw, 18rem);
+            min-width: 0;
+        }
+
+        .error-digit {
+            flex: 0 1 auto;
+            font-size: clamp(4rem, 18vw, 15rem);
+        }
+
+        footer {
+            flex: 0 0 auto;
+            min-height: 5rem;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                padding: 0 1rem 1rem !important;
+                gap: 0.75rem;
             }
-            h2 {
-                font-size: 1.8em;
+
+            .brand-logo {
+                gap: 8px;
             }
-            p {
-                font-size: 1em;
+
+            .brand-logo img {
+                width: 28px;
+                height: 28px;
+            }
+
+            .brand-logo-name {
+                font-size: clamp(1rem, 5vw, 1.25rem);
+            }
+
+            #parallaxScene {
+                padding: 1.25rem 0.75rem 2rem;
+            }
+
+            #parallaxScene > div > .relative.flex.items-center {
+                width: 100%;
+                gap: 0;
+            }
+
+            #newspaperCard {
+                padding: 0.75rem;
+            }
+
+            #newspaperCard svg {
+                max-width: 100%;
+                height: auto;
+            }
+
+            #parallaxScene > div > .parallax-layer.mt-8 a {
+                padding: 0.85rem 1.25rem;
+            }
+
+            .wall-hole {
+                right: 12px;
+                width: min(260px, calc(100vw - 24px));
+            }
+
+            #ladderWorker {
+                right: -80px;
+            }
+
+            footer > .max-w-7xl {
+                padding: 0 1rem;
+                text-align: center;
             }
         }
 
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 4em;
+        @media (max-width: 360px) {
+            .error-digit {
+                font-size: 17vw;
             }
-            h2 {
-                font-size: 1.5em;
+
+            #newspaperCard {
+                width: 50vw;
             }
-            .container {
-                padding: 25px;
+
+            #newspaperCard .text-base {
+                font-size: 0.875rem;
             }
+        }
+
+        /* Efeito do Facho de Luz quando a luz está acesa no modo escuro */
+        .spotlight-dark {
+            background: radial-gradient(circle at var(--lamp-x, 50%) var(--lamp-y, 100px), rgba(255, 255, 255, 0.12) 0%, rgba(10, 10, 10, 0.98) 55%);
+        }
+
+        /* Animação do balanço da luminária */
+        @keyframes swing {
+            0% { transform: rotate(0deg); }
+            20% { transform: rotate(6deg); }
+            40% { transform: rotate(-5deg); }
+            60% { transform: rotate(3deg); }
+            80% { transform: rotate(-1deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        .swing-animation {
+            transform-origin: top center;
+            animation: swing 2.2s ease-in-out;
+        }
+
+        /* Tremor de personagem bravo */
+        @keyframes angryShake {
+            0%, 100% { transform: translateX(0) translateY(0) scale(1.1); }
+            20% { transform: translateX(-4px) translateY(-2px) scale(1.15) rotate(-4deg); }
+            40% { transform: translateX(4px) translateY(0) scale(1.15) rotate(4deg); }
+            60% { transform: translateX(-4px) translateY(-2px) scale(1.15) rotate(-4deg); }
+            80% { transform: translateX(4px) translateY(0) scale(1.15) rotate(4deg); }
+        }
+
+        .angry-animation {
+            animation: angryShake 0.3s ease-in-out infinite !important;
+        }
+
+        /* Cordinha da lâmpada */
+        .pull-cord {
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+        .pull-cord:active {
+            transform: translateY(12px);
+        }
+
+        /* Personagens caminhando */
+        @keyframes walkContainer {
+            0% { transform: translateX(-100px); }
+            100% { transform: translateX(calc(100vw + 100px)); }
+        }
+
+        .walker-track {
+            position: absolute;
+            top: -55px; /* Caminham exatamente em cima da barra de blur */
+            left: 0;
+            width: 100%;
+            height: 60px;
+            pointer-events: none;
+            z-index: 25;
+        }
+
+        .walker {
+            position: absolute;
+            bottom: 0;
+            pointer-events: auto;
+            cursor: pointer;
+            transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .walker-1 {
+            animation: walkContainer 24s linear infinite;
+        }
+        .walker-2 {
+            animation: walkContainer 32s linear infinite;
+            animation-delay: -10s;
+        }
+        .walker-3 {
+            animation: walkContainer 28s linear infinite;
+            animation-delay: -18s;
+        }
+
+        /* Animação das perninhas dos bonecos */
+        @keyframes legWalk {
+            0%, 100% { transform: rotate(-15deg); }
+            50% { transform: rotate(15deg); }
+        }
+        @keyframes legWalkAlt {
+            0%, 100% { transform: rotate(15deg); }
+            50% { transform: rotate(-15deg); }
+        }
+
+        .leg-left { transform-origin: top center; animation: legWalk 0.5s ease-in-out infinite; }
+        .leg-right { transform-origin: top center; animation: legWalkAlt 0.5s ease-in-out infinite; }
+
+        .newspaper-cutout {
+            box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .dark .newspaper-cutout {
+            box-shadow: 0 15px 35px -5px rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        /* Tooltip de fala dos personagens */
+        .speech-bubble {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            opacity: 0;
+            transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 50;
+        }
+        .speech-bubble.active {
+            transform: translateX(-50%) scale(1);
+            opacity: 1;
+        }
+
+        /* Placa de Dica posicionada na mesma altura dos trabalhadores */
+        .wall-hole {
+            position: absolute;
+            top: -65px; /* Alinhado à altura dos trabalhadores */
+            right: 8%;
+            width: 260px;
+            min-height: 55px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #737373;
+            border-radius: 8px;
+            padding: 8px 12px;
+            opacity: 0;
+            transform: translateY(10px) scale(0.9);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: auto;
+            z-index: 30;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .dark .wall-hole {
+            background: rgba(23, 23, 23, 0.95);
+            border-color: #a3a3a3;
+        }
+        .wall-hole.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        /* Operário com Escada */
+        #ladderWorker {
+            position: absolute;
+            top: -55px; /* Alinhado à base dos trabalhadores */
+            right: -120px;
+            transition: transform 0.8s ease-in-out;
+            pointer-events: auto;
+            z-index: 32;
+            cursor: pointer;
+        }
+
+        /* Canvas de Partículas */
+        #particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 10;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>404</h1>
-        <h3>Página Não Encontrada</h3>
-        <p>A página que você está procurando pode ter sido removida, ou estar temporariamente indisponível, verifique o endereço ou clique no botão abaixo para retornar à página inicial.</p>
-        <a href="/Captu_library/index.html" class="button">Ir para a Página Inicial</a>
+<body class="bg-poefo-offwhite text-poefo-black dark:bg-poefo-black dark:text-poefo-white min-h-screen flex flex-col justify-between relative transition-colors duration-500">
+
+    <canvas id="particleCanvas"></canvas>
+    <div id="spotlightOverlay" class="fixed inset-0 pointer-events-none transition-opacity duration-500 opacity-0 z-0"></div>
+
+    <!-- ==================== LUSTRE INTERATIVO (MEIA CIRCUNFERÊNCIA) ==================== -->
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center">
+        <!-- Fio do Lustre -->
+        <div id="lampCord" class="w-[2px] bg-poefo-gray dark:bg-poefo-lightgray h-20 md:h-24 transition-all duration-300"></div>
+        
+        <!-- Luminária / Lustre Minimalista -->
+        <div id="lampHead" class="relative group cursor-pointer" onclick="toggleLight()">
+            <svg width="70" height="42" viewBox="0 0 70 42" fill="none" xmlns="http://www.w3.org/2000/svg" class="transition-transform duration-300">
+                <!-- Suporte superior da cúpula -->
+                <rect x="29" y="0" width="12" height="5" class="fill-poefo-black dark:fill-poefo-white" rx="1"/>
+                
+                <!-- Lâmpada Interna (Apenas meia circunferência inferior sob a cúpula) -->
+                <path id="bulbSemiCircle" d="M 26 28 A 9 9 0 0 0 44 28 Z" class="fill-yellow-200 dark:fill-yellow-100 transition-all duration-300"/>
+
+                <!-- Cúpula/Dome do Lustre cobrindo a metade superior da lâmpada -->
+                <path d="M 6 28 C 12 8, 58 8, 64 28 Z" class="fill-poefo-black dark:fill-poefo-white stroke-poefo-black dark:stroke-poefo-white" stroke-width="2"/>
+                <!-- Borda da Cúpula -->
+                <line x1="4" y1="28" x2="66" y2="28" stroke="currentColor" stroke-width="2.5" class="text-poefo-black dark:text-poefo-white" stroke-linecap="round"/>
+            </svg>
+
+            <!-- Cordinha com bolinha para puxar -->
+            <div id="pullCord" class="pull-cord absolute top-7 left-1/2 -translate-x-1/2 flex flex-col items-center" title="Clique para acender/apagar a luz">
+                <div class="w-[1px] h-11 bg-poefo-gray dark:bg-poefo-lightgray opacity-70"></div>
+                <div class="w-3 h-3 rounded-full bg-poefo-black dark:bg-poefo-white border border-poefo-gray shadow-md"></div>
+            </div>
+        </div>
     </div>
+
+    <!-- ==================== CABEÇALHO / LOGO POEFO ==================== -->
+    <header class="w-full max-w-7xl mx-auto px-6 pt-8 pb-4 flex justify-between items-center z-20 relative">
+       
+        <a href="/inicio" class="brand-logo group">
+            <img src="./images/icon_logo.png" alt="Logo Poefo">
+            <span class="brand-logo-name text-poefo-black dark:text-poefo-white">Poefo Library</span>
+        </a>
+
+        <div class="hidden sm:flex items-center space-x-2 text-xs text-poefo-gray border border-poefo-lightgray dark:border-poefo-dark px-3 py-1.5 rounded-full bg-white/50 dark:bg-poefo-dark/50 backdrop-blur-sm">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span id="lightStatusText">Luz: Acesa</span>
+        </div>
+    </header>
+
+    <!-- ==================== CONTEÚDO PRINCIPAL 404 ==================== -->
+    <main id="parallaxScene" class="flex-1 flex flex-col items-center justify-center px-4 relative z-20 py-8 transition-transform duration-100 ease-out">
+        <div class="relative flex flex-col items-center max-w-4xl w-full mx-auto text-center">
+
+            <div class="relative flex items-center justify-center select-none py-4">
+                <span class="error-digit parallax-layer text-[120px] sm:text-[180px] md:text-[240px] font-black tracking-tighter leading-none text-poefo-black dark:text-poefo-white opacity-90 transition-all hover:scale-105 hover:rotate-[-2deg] cursor-pointer" data-depth="0.05" title="4">
+                    4
+                </span>
+
+                <div class="parallax-layer mx-1 sm:mx-4 relative z-10" data-depth="0.1">
+                    <div id="newspaperCard" class="newspaper-cutout bg-white text-poefo-black p-3 sm:p-5 rounded-lg transform -rotate-1 hover:rotate-0 transition-all duration-300 w-44 sm:w-64 md:w-72 cursor-pointer group">
+                        <div class="border-b-2 border-poefo-black pb-1 mb-2 flex justify-between items-center text-[9px] sm:text-[11px] font-mono uppercase tracking-widest">
+                            <span>POEFO DAILY</span>
+                            <span>EDIÇÃO #404</span>
+                        </div>
+
+                        <div class="font-serif font-bold text-base sm:text-xl md:text-2xl leading-tight border-b border-poefo-lightgray pb-2 mb-2 text-center group-hover:text-poefo-gray transition-colors">
+                            OH NO! IT'S MISSING
+                        </div>
+
+                        <div class="py-2 flex justify-center items-center overflow-hidden bg-poefo-offwhite rounded border border-poefo-lightgray">
+                            <svg width="120" height="90" viewBox="0 0 120 90" fill="none" xmlns="http://www.w3.org/2000/svg" class="transform group-hover:scale-110 transition-transform duration-300">
+                                <circle cx="60" cy="30" r="14" fill="#171717"/>
+                                <rect x="30" y="20" width="60" height="50" fill="#ffffff" stroke="#171717" stroke-width="2" rx="2"/>
+                                <line x1="36" y1="28" x2="84" y2="28" stroke="#737373" stroke-width="2"/>
+                                <line x1="36" y1="34" x2="60" y2="34" stroke="#737373" stroke-width="1.5"/>
+                                <line x1="36" y1="39" x2="55" y2="39" stroke="#737373" stroke-width="1.5"/>
+                                <line x1="64" y1="34" x2="84" y2="34" stroke="#737373" stroke-width="1.5"/>
+                                <line x1="64" y1="39" x2="84" y2="39" stroke="#737373" stroke-width="1.5"/>
+                                <rect x="36" y="46" width="48" height="18" fill="#f9f9fb" stroke="#737373" stroke-width="1"/>
+                                <path d="M 40 58 L 50 52 L 60 55 L 70 48 L 80 50" fill="none" stroke="#171717" stroke-width="2"/>
+                                <path d="M 25 55 L 30 50 M 95 55 L 90 50" stroke="#171717" stroke-width="3" stroke-linecap="round"/>
+                                <path d="M 57 70 L 63 70 L 61 88 L 57 88 Z" fill="#171717"/>
+                            </svg>
+                        </div>
+
+                        <p class="text-[9px] sm:text-[10px] text-poefo-gray mt-2 leading-snug font-sans">
+                            O livro ou documento solicitado sumiu das prateleiras da nossa biblioteca digital.
+                        </p>
+                    </div>
+                </div>
+
+                <span class="error-digit parallax-layer text-[120px] sm:text-[180px] md:text-[240px] font-black tracking-tighter leading-none text-poefo-black dark:text-poefo-white opacity-90 transition-all hover:scale-105 hover:rotate-[2deg] cursor-pointer" data-depth="0.05" title="4">
+                    4
+                </span>
+            </div>
+
+            <div class="parallax-layer space-y-3 mt-2 max-w-lg mx-auto" data-depth="0.02">
+                <h1 class="text-2xl sm:text-3xl font-serif font-bold text-poefo-black dark:text-poefo-white">
+                    Página Não Encontrada
+                </h1>
+                <p class="text-sm sm:text-base text-poefo-gray dark:text-poefo-lightgray font-normal px-4">
+                    Pedimos desculpas! O link que você seguiu pode estar quebrado ou a página foi movida para outro acervo.
+                </p>
+            </div>
+
+            <div class="parallax-layer mt-8 z-30" data-depth="0.01">
+                <a href="https://poefo-library.web.app" class="inline-flex items-center space-x-3 px-8 py-4 bg-poefo-black text-poefo-white dark:bg-poefo-white dark:text-poefo-black rounded-full font-medium text-sm tracking-wide transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95 group">
+                    <svg class="w-4 h-4 transition-transform group-hover:-translateX-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    <span>Voltar para o Início</span>
+                </a>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ==================== BANDEIRA / BARRA DE BLUR COM TRABALHADORES E DICAS ==================== -->
+    <footer class="w-full relative z-20 border-t border-poefo-lightgray/40 dark:border-poefo-dark/40 bg-white/70 dark:bg-poefo-dark/70 backdrop-blur-md pt-4 pb-4">
+        
+        <!-- TRABALHADOR DA ESCADA (POSICIONADO NA MESMA ALTURA DO CHÃO) -->
+        <div id="ladderWorker" onclick="makeAngry(this)">
+            <div class="speech-bubble bg-poefo-black text-white text-[11px] px-2.5 py-1 rounded shadow-lg font-mono"></div>
+            <svg width="65" height="55" viewBox="0 0 65 55" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g id="ladderGraphic">
+                    <line x1="42" y1="2" x2="42" y2="52" stroke="#737373" stroke-width="3"/>
+                    <line x1="56" y1="2" x2="56" y2="52" stroke="#737373" stroke-width="3"/>
+                    <line x1="42" y1="12" x2="56" y2="12" stroke="#737373" stroke-width="2"/>
+                    <line x1="42" y1="24" x2="56" y2="24" stroke="#737373" stroke-width="2"/>
+                    <line x1="42" y1="36" x2="56" y2="36" stroke="#737373" stroke-width="2"/>
+                    <line x1="42" y1="48" x2="56" y2="48" stroke="#737373" stroke-width="2"/>
+                </g>
+                <circle cx="20" cy="12" r="6" fill="currentColor" class="text-poefo-black dark:text-poefo-white"/>
+                <path d="M 12 11 C 12 4, 28 4, 28 11 Z" fill="#737373"/>
+                <line x1="20" y1="18" x2="20" y2="35" stroke="currentColor" stroke-width="3" class="text-poefo-black dark:text-poefo-white"/>
+                <line x1="20" y1="35" x2="14" y2="48" stroke="currentColor" stroke-width="3" stroke-linecap="round" class="leg-left text-poefo-black dark:text-poefo-white"/>
+                <line x1="20" y1="35" x2="26" y2="48" stroke="currentColor" stroke-width="3" stroke-linecap="round" class="leg-right text-poefo-black dark:text-poefo-white"/>
+                <path d="M 20 24 L 44 22" stroke="currentColor" stroke-width="2.5" class="text-poefo-black dark:text-poefo-white"/>
+            </svg>
+        </div>
+
+        <!-- PLACA DE DICA NA ALTURA DOS TRABALHADORES -->
+        <div id="wallHoleSign" class="wall-hole">
+            <div class="flex items-center justify-between border-b border-poefo-gray/30 pb-0.5 mb-1">
+                <span class="text-[9px] font-mono uppercase tracking-widest font-bold text-poefo-gray">💡 DICA POEFO</span>
+                <span class="text-[8px] px-1 py-0.2 rounded bg-poefo-black text-white dark:bg-poefo-white dark:text-poefo-black font-mono">Útil</span>
+            </div>
+            <p id="tipText" class="text-[11px] font-sans text-poefo-black dark:text-poefo-white leading-tight">
+                Preparando dica...
+            </p>
+        </div>
+
+        <!-- CAMINHO DOS TRABALHADORES (CAMINHAM POR CIMA DA FAIXA DE BLUR) -->
+        <div class="walker-track">
+            
+            <!-- Personagem 1 -->
+            <div class="walker walker-1" onclick="makeAngry(this)">
+                <div class="speech-bubble bg-poefo-black text-white text-[11px] px-2.5 py-1 rounded shadow-lg font-mono"></div>
+                <svg width="45" height="55" viewBox="0 0 45 55" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="20" cy="12" r="6" fill="currentColor" class="text-poefo-black dark:text-poefo-white"/>
+                    <line x1="20" y1="18" x2="20" y2="35" stroke="currentColor" stroke-width="3" class="text-poefo-black dark:text-poefo-white"/>
+                    <line x1="20" y1="35" x2="14" y2="48" stroke="currentColor" stroke-width="3" stroke-linecap="round" class="leg-left text-poefo-black dark:text-poefo-white"/>
+                    <line x1="20" y1="35" x2="26" y2="48" stroke="currentColor" stroke-width="3" stroke-linecap="round" class="leg-right text-poefo-black dark:text-poefo-white"/>
+                    <path d="M 20 22 L 32 25 L 32 15" stroke="currentColor" stroke-width="2.5" fill="none" class="text-poefo-black dark:text-poefo-white"/>
+                    <rect x="26" y="8" width="16" height="6" fill="#737373" rx="1"/>
+                    <rect x="27" y="14" width="14" height="5" fill="#a3a3a3" rx="1"/>
+                    <rect x="25" y="19" width="18" height="6" fill="#171717" rx="1"/>
+                </svg>
+            </div>
+
+            <!-- Personagem 2 -->
+            <div class="walker walker-2" onclick="makeAngry(this)">
+                <div class="speech-bubble bg-poefo-black text-white text-[11px] px-2.5 py-1 rounded shadow-lg font-mono"></div>
+                <svg width="50" height="55" viewBox="0 0 50 55" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="16" cy="14" r="6" fill="currentColor" class="text-poefo-black dark:text-poefo-white"/>
+                    <line x1="18" y1="20" x2="20" y2="36" stroke="currentColor" stroke-width="3" class="text-poefo-black dark:text-poefo-white"/>
+                    <line x1="20" y1="36" x2="13" y2="49" stroke="currentColor" stroke-width="3" stroke-linecap="round" class="leg-left text-poefo-black dark:text-poefo-white"/>
+                    <line x1="20" y1="36" x2="27" y2="49" stroke="currentColor" stroke-width="3" stroke-linecap="round" class="leg-right text-poefo-black dark:text-poefo-white"/>
+                    <path d="M 18 24 L 28 28" stroke="currentColor" stroke-width="2.5" class="text-poefo-black dark:text-poefo-white"/>
+                    <rect x="25" y="14" width="20" height="20" fill="#e5e5e5" stroke="#171717" stroke-width="1.5" rx="2"/>
+                    <line x1="35" y1="14" x2="35" y2="34" stroke="#737373" stroke-width="1.5"/>
+                    <line x1="25" y1="24" x2="45" y2="24" stroke="#737373" stroke-width="1.5"/>
+                </svg>
+            </div>
+
+            <!-- Personagem 3 -->
+            <div class="walker walker-3" onclick="makeAngry(this)">
+                <div class="speech-bubble bg-poefo-black text-white text-[11px] px-2.5 py-1 rounded shadow-lg font-mono"></div>
+                <svg width="45" height="55" viewBox="0 0 45 55" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="22" cy="12" r="6" fill="currentColor" class="text-poefo-black dark:text-poefo-white"/>
+                    <line x1="22" y1="18" x2="22" y2="35" stroke="currentColor" stroke-width="3" class="text-poefo-black dark:text-poefo-white"/>
+                    <line x1="22" y1="35" x2="16" y2="48" stroke="currentColor" stroke-width="3" stroke-linecap="round" class="leg-left text-poefo-black dark:text-poefo-white"/>
+                    <line x1="22" y1="35" x2="28" y2="48" stroke="currentColor" stroke-width="3" stroke-linecap="round" class="leg-right text-poefo-black dark:text-poefo-white"/>
+                    <rect x="12" y="0" width="20" height="7" fill="#171717" class="dark:fill-poefo-white" rx="1"/>
+                    <path d="M 22 20 L 14 6 M 22 20 L 30 6" stroke="currentColor" stroke-width="2" class="text-poefo-black dark:text-poefo-white"/>
+                </svg>
+            </div>
+
+        </div>
+
+        <!-- CONTEÚDO DO RODAPÉ (NÃO É SOBREPOSTO PELOS TRABALHADORES) -->
+        <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center text-xs text-poefo-gray space-y-2 sm:space-y-0 relative z-10">
+            <div>
+                &copy; <span id="yearSpan"></span> POEFO Library. Todos os direitos reservados.
+            </div>
+            <div class="flex space-x-4">
+                <span class="hover:text-poefo-black dark:hover:text-white transition-colors cursor-pointer" onclick="triggerConfetti()">Dica: Cuidado para não irritar os trabalhadores! 📦</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==================== SCRIPTS DE INTERATIVIDADE E ANIMAÇÕES ==================== -->
+    <script>
+        document.getElementById('yearSpan').textContent = new Date().getFullYear();
+
+        /* ==================== 1. LUSTRE (MEIA CIRCUNFERÊNCIA) ==================== */
+        let isLightOn = true;
+        const body = document.body;
+        const spotlightOverlay = document.getElementById('spotlightOverlay');
+        const lampHead = document.getElementById('lampHead');
+        const bulbSemiCircle = document.getElementById('bulbSemiCircle');
+        const lightStatusText = document.getElementById('lightStatusText');
+
+        function toggleLight() {
+            isLightOn = !isLightOn;
+
+            lampHead.classList.remove('swing-animation');
+            void lampHead.offsetWidth;
+            lampHead.classList.add('swing-animation');
+
+            if (isLightOn) {
+                body.classList.remove('dark');
+                spotlightOverlay.style.opacity = '0';
+                bulbSemiCircle.style.fill = '#fef08a';
+                lightStatusText.textContent = 'Luz: Acesa';
+            } else {
+                body.classList.add('dark');
+                spotlightOverlay.style.opacity = '1';
+                spotlightOverlay.classList.add('spotlight-dark');
+                bulbSemiCircle.style.fill = '#525252';
+                lightStatusText.textContent = 'Luz: Apagada';
+            }
+        }
+
+        window.addEventListener('mousemove', (e) => {
+            const xPercent = (e.clientX / window.innerWidth) * 100;
+            const yPx = e.clientY;
+            document.documentElement.style.setProperty('--lamp-x', `${xPercent}%`);
+            document.documentElement.style.setProperty('--lamp-y', `${yPx}px`);
+        });
+
+        /* ==================== 2. PARALLAX COM MOUSE & GIROSCÓPIO ==================== */
+        const parallaxLayers = document.querySelectorAll('.parallax-layer');
+        let targetX = 0, targetY = 0, currentX = 0, currentY = 0;
+
+        window.addEventListener('mousemove', (e) => {
+            const cx = window.innerWidth / 2;
+            const cy = window.innerHeight / 2;
+            targetX = (e.clientX - cx) / cx;
+            targetY = (e.clientY - cy) / cy;
+        });
+
+        if (window.DeviceOrientationEvent) {
+            window.addEventListener('deviceorientation', (e) => {
+                if (e.gamma !== null && e.beta !== null) {
+                    targetX = Math.min(Math.max(e.gamma / 30, -1), 1);
+                    targetY = Math.min(Math.max((e.beta - 45) / 30, -1), 1);
+                }
+            });
+        }
+
+        function updateParallax() {
+            currentX += (targetX - currentX) * 0.08;
+            currentY += (targetY - currentY) * 0.08;
+
+            parallaxLayers.forEach(layer => {
+                const depth = parseFloat(layer.getAttribute('data-depth') || '0.05');
+                const moveX = currentX * depth * 200;
+                const moveY = currentY * depth * 200;
+                layer.style.transform = `translate3d(${moveX}px, ${moveY}px, 0)`;
+            });
+
+            requestAnimationFrame(updateParallax);
+        }
+        updateParallax();
+
+        /* ==================== 3. PERSONAGENS: RESPOSTA IMEDIATA E BRAVA ==================== */
+        const normalDialogues = [
+            "Entrega rápida para a estante 4...",
+            "Quem deixou o 404 desorganizado?",
+            "Carregando mais acervo...",
+            "Cuidado com a lombada do livro!",
+            "Outro link quebrado? Puxa vida...",
+            "Quase terminando meu turno..."
+        ];
+
+        const angryDialogues = [
+            "Ei! Não me atrapalhe! 😡💢",
+            "Cuidado! Vou derrubar o pacote! 😤📦",
+            "O que você quer?! Estou trabalhando! 🤬",
+            "Larga de ser intrometido! 🥊💥",
+            "Ei, olhe por onde clica! 💢😡",
+            "Ninguém respeita os carregadores! 😤"
+        ];
+
+        const walkers = document.querySelectorAll('.walker');
+
+        // Falas automáticas periódicas
+        setInterval(() => {
+            const randomWalker = walkers[Math.floor(Math.random() * walkers.length)];
+            if (!randomWalker.classList.contains('angry-animation')) {
+                const randomText = normalDialogues[Math.floor(Math.random() * normalDialogues.length)];
+                showSpeech(randomWalker, randomText, 3000);
+            }
+        }, 4000);
+
+        function showSpeech(element, text, duration = 2500) {
+            const bubble = element.querySelector('.speech-bubble');
+            if (bubble) {
+                bubble.textContent = text;
+                bubble.classList.add('active');
+                clearTimeout(element._speechTimer);
+                element._speechTimer = setTimeout(() => {
+                    bubble.classList.remove('active');
+                }, duration);
+            }
+        }
+
+        function makeAngry(element) {
+            // Resposta instantânea no mesmo frame
+            element.classList.remove('angry-animation');
+            void element.offsetWidth; // Força reflow imediato
+            element.classList.add('angry-animation');
+
+            const angryText = angryDialogues[Math.floor(Math.random() * angryDialogues.length)];
+            showSpeech(element, angryText, 2500);
+
+            // Explosão de partículas instantânea
+            const rect = element.getBoundingClientRect();
+            createBurst(rect.left + rect.width / 2, rect.top);
+
+            clearTimeout(element._angryTimer);
+            element._angryTimer = setTimeout(() => {
+                element.classList.remove('angry-animation');
+            }, 2500);
+        }
+
+        /* ==================== 4. OPERÁRIO DA ESCADA & PLACA DE DICA NA BASE ==================== */
+        const ladderWorker = document.getElementById('ladderWorker');
+        const wallHoleSign = document.getElementById('wallHoleSign');
+        const tipText = document.getElementById('tipText');
+
+        const tipsList = [
+            "Você sabia? Você pode clicar no lustre para acender ou apagar as luzes da página!",
+            "Tente mover o cursor ou inclinar o dispositivo para ver o efeito Parallax nos números 404.",
+            "Cuidado ao clicar nos funcionários da biblioteca! Eles ficam bravos rapidamente.",
+            "Use o botão 'Voltar para o Início' para retornar com segurança ao acervo principal."
+        ];
+
+        let tipIndex = 0;
+
+        function runLadderWorkerRoutine() {
+            // Operário entra vindo da direita
+            ladderWorker.style.transform = 'translateX(-320px)';
+            
+            setTimeout(() => {
+                showSpeech(ladderWorker, "Instalando a placa de dica... 🪜", 2000);
+
+                setTimeout(() => {
+                    // Exibe a placa no mesmo nível do chão
+                    tipText.textContent = tipsList[tipIndex];
+                    tipIndex = (tipIndex + 1) % tipsList.length;
+                    wallHoleSign.classList.add('visible');
+
+                    setTimeout(() => {
+                        showSpeech(ladderWorker, "Dica fixada! 📌", 2000);
+
+                        setTimeout(() => {
+                            // Operário recolhe a escada e sai de cena
+                            ladderWorker.style.transform = 'translateX(100px)';
+                            
+                            setTimeout(() => {
+                                wallHoleSign.classList.remove('visible');
+                                setTimeout(runLadderWorkerRoutine, 7000);
+                            }, 8000);
+
+                        }, 2500);
+                    }, 2000);
+                }, 1500);
+            }, 1000);
+        }
+
+        setTimeout(runLadderWorkerRoutine, 2500);
+
+        /* ==================== 5. SISTEMA DE PARTÍCULAS ==================== */
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 5 + 2;
+                this.speedX = (Math.random() - 0.5) * 6;
+                this.speedY = (Math.random() - 0.5) * 6 - 2;
+                this.color = body.classList.contains('dark') ? '#ffffff' : '#171717';
+                this.opacity = 1;
+                this.rotation = Math.random() * Math.PI * 2;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.speedY += 0.15;
+                this.opacity -= 0.02;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = Math.max(this.opacity, 0);
+                ctx.fillStyle = this.color;
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+                ctx.restore();
+            }
+        }
+
+        function createBurst(x, y) {
+            for (let i = 0; i < 18; i++) {
+                particles.push(new Particle(x, y));
+            }
+        }
+
+        window.addEventListener('click', (e) => {
+            if (!e.target.closest('a') && !e.target.closest('#lampHead') && !e.target.closest('.walker')) {
+                createBurst(e.clientX, e.clientY);
+            }
+        });
+
+        function triggerConfetti() {
+            createBurst(window.innerWidth / 2, window.innerHeight - 80);
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update();
+                particles[i].draw();
+                if (particles[i].opacity <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+    </script>
 </body>
 </html>

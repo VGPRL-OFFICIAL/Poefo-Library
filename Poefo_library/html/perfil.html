@@ -31,7 +31,7 @@
     <div class="app-screen">
         
         <header class="app-top-bar">
-            <a href="./home.at.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+            <a href="/inicio" class="back-btn"><i class="fas fa-arrow-left"></i></a>
         </header>
 
         <div class="perfil-card-container">
@@ -221,7 +221,7 @@
     async function loadUserData() {
         if (!currentUserId) {
             showCustomMessage('Você não está logado. Redirecionando para o login...');
-            window.location.href = './login.html'; 
+            window.location.href = '/login';
             return;
         }
 
@@ -233,7 +233,7 @@
             if (!userData) {
                 showCustomMessage('Dados do usuário não encontrados. Redirecionando para o login.');
                 sessionStorage.clear();
-                window.location.href = './login.html';
+                window.location.href = '/login';
                 return;
             }
 
@@ -452,7 +452,7 @@
             sessionStorage.clear();
             ['currentUserId', 'currentUserName', 'currentUserPic', 'currentUserAvatar', 'currentUserAuthUid', 'rememberedUsername']
                 .forEach(key => localStorage.removeItem(key));
-            window.location.href = './login.html';
+            window.location.href = '/login';
         } catch (error) {
             console.error('Erro ao sair da conta:', error);
             showCustomMessage(`Não foi possível encerrar a sessão: ${error.message}`);

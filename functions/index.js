@@ -1,8 +1,142 @@
 const functions = require('firebase-functions/v1');
+const { defineString } = require('firebase-functions/params');
 const admin = require('firebase-admin');
+const { OAuth2Client } = require('google-auth-library');
 
 admin.initializeApp({
   databaseURL: 'https://captu-libraly-default-rtdb.firebaseio.com'
+});
+
+const googleOAuthWebClientId = defineString('GOOGLE_OAUTH_WEB_CLIENT_ID', {
+  description: 'OAuth Web Client ID usado pelo provedor Google do Firebase Authentication'
+});
+const googleOAuthClient = new OAuth2Client();
+
+function normalizeGoogleIdentity(value) {
+  return String(value || '').trim().replace(/\s+/g, ' ').toLocaleLowerCase('pt-BR');
+}
+
+async function findProfileByGoogleEmail(email) {
+  const usersRef = admin.database().ref('usuarios');
+  const snapshot = await usersRef.orderByChild('email').equalTo(email).once('value');
+  let matches = Object.entries(snapshot.val() || {});
+
+  if (matches.length === 0) {
+    const allUsers = await usersRef.once('value');
+    matches = Object.entries(allUsers.val() || {}).filter(([, profile]) =>
+      String(profile && profile.email || '').trim().toLowerCase() === email
+    );
+  }
+
+  if (matches.length > 1) {
+    throw new functions.https.HttpsError(
+      'failed-precondition',
+      'Mais de um perfil Poefo usa este e-mail. Entre em contato com a administração.'
+    );
+  }
+  return matches.length ? { id: matches[0][0], data: matches[0][1] } : null;
+}
+
+async function getGoogleLoginUid(email, profile, googleSubject) {
+  if (profile && profile.data.authUid) {
+    try {
+      const user = await admin.auth().getUser(profile.data.authUid);
+      if (String(user.email || '').trim().toLowerCase() !== email || user.disabled) {
+        throw new functions.https.HttpsError(
+          'permission-denied',
+          'O perfil Poefo não corresponde à conta de autenticação vinculada.'
+        );
+      }
+      return user.uid;
+    } catch (error) {
+      if (error instanceof functions.https.HttpsError) throw error;
+      if (error.code !== 'auth/user-not-found') throw error;
+    }
+  }
+
+  try {
+    const user = await admin.auth().getUserByEmail(email);
+    if (user.disabled) {
+      throw new functions.https.HttpsError(
+        'permission-denied',
+        'Esta conta está desativada. Entre em contato com a administração.'
+      );
+    }
+    return user.uid;
+  } catch (error) {
+    if (error instanceof functions.https.HttpsError) throw error;
+    if (error.code !== 'auth/user-not-found') throw error;
+  }
+
+  const uid = `poefo-google-${googleSubject}`;
+  try {
+    const existingUser = await admin.auth().getUser(uid);
+    if (String(existingUser.email || '').trim().toLowerCase() !== email || existingUser.disabled) {
+      throw new functions.https.HttpsError(
+        'failed-precondition',
+        'Não foi possível validar a conta de autenticação. Entre em contato com a administração.'
+      );
+    }
+  } catch (error) {
+    if (error instanceof functions.https.HttpsError) throw error;
+    if (error.code !== 'auth/user-not-found') throw error;
+  }
+  return uid;
+}
+
+exports.loginWithGoogleIdentity = functions.https.onCall(async (data) => {
+  const idToken = String(data && data.idToken || '');
+  if (!idToken || idToken.length > 10000) {
+    throw new functions.https.HttpsError('invalid-argument', 'A identidade Google é inválida.');
+  }
+  const audience = googleOAuthWebClientId.value();
+  if (!audience) {
+    throw new functions.https.HttpsError(
+      'failed-precondition',
+      'O OAuth Web Client ID do Google ainda não foi configurado.'
+    );
+  }
+
+  let payload;
+  try {
+    const ticket = await googleOAuthClient.verifyIdToken({ idToken, audience });
+    payload = ticket.getPayload();
+  } catch (error) {
+    throw new functions.https.HttpsError('unauthenticated', 'Não foi possível validar a identidade Google.');
+  }
+
+  const email = String(payload && payload.email || '').trim().toLowerCase();
+  const fullName = String(payload && payload.name || '').trim().replace(/\s+/g, ' ');
+  if (!payload || !payload.sub || !email || !fullName || payload.email_verified !== true) {
+    throw new functions.https.HttpsError(
+      'unauthenticated',
+      'O Google não confirmou um e-mail e nome válidos para esta conta.'
+    );
+  }
+
+  const profile = await findProfileByGoogleEmail(email);
+  if (profile) {
+    if (profile.data.bloqueado === true) {
+      throw new functions.https.HttpsError(
+        'permission-denied',
+        'Esta conta está bloqueada. Entre em contato com a administração.'
+      );
+    }
+    if (normalizeGoogleIdentity(profile.data.nome_completo) !== normalizeGoogleIdentity(fullName)) {
+      throw new functions.https.HttpsError(
+        'permission-denied',
+        'O nome da conta Google não corresponde ao nome cadastrado na Poefo.'
+      );
+    }
+  }
+
+  const uid = await getGoogleLoginUid(email, profile, payload.sub);
+  const token = await admin.auth().createCustomToken(uid, {
+    poefoGoogleEmail: email,
+    poefoGoogleFullName: fullName,
+    poefoGoogleProfileExists: Boolean(profile)
+  });
+  return { token, profileExists: Boolean(profile), email, fullName };
 });
 
 function getConversationParticipants(meta) {

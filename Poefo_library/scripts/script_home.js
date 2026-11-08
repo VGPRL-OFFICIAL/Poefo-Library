@@ -27,7 +27,7 @@ const REDIRECT_CARDS_DATA = {
         title: "Acesse os games e aumente seu ranking",
         desc: "Complete desafios literários, acumule pontos e veja sua evolução continuar salva no perfil.",
         btnText: "Abrir games",
-        btnUrl: "./games_menu.html",
+        btnUrl: "/jogos",
         image: "../images/banner-games.svg"
     },
     // Estrutura do 2º Campo de Redirecionamento (Basta alterar os dados abaixo)
@@ -36,7 +36,7 @@ const REDIRECT_CARDS_DATA = {
         title: "Participe das discussões no Feed",
         desc: "Veja o que outros leitores estão comentando e compartilhe suas opiniões.",
         btnText: "Ver Feed",
-        btnUrl: "./feed.html",
+        btnUrl: "/feed",
         image: "../images/banner-feed.svg"
     },
     // Estrutura do 3º Campo de Redirecionamento (Basta alterar os dados abaixo)
@@ -45,7 +45,7 @@ const REDIRECT_CARDS_DATA = {
         title: "Escreva e publique seu próprio livro",
         desc: "Utilize nosso editor completo para criar novas histórias e compartilhar com a comunidade.",
         btnText: "Criar agora",
-        btnUrl: "./editor.html",
+        btnUrl: "/criar",
         image: "../images/banner-criacao.svg"
     }
 };
@@ -337,7 +337,7 @@ window.openBook = (data) => {
     const userData = localStorage.getItem('userLogado');
     if (userData) sessionStorage.setItem('userProfile', userData);
 
-    window.location.href = './livro.html';
+    window.location.href = '/livro';
 };
 
 window.openDuckDogBook = (data) => {

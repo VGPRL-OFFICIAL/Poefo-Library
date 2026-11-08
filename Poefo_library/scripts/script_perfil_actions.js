@@ -55,7 +55,7 @@ async function renderSavedBooksGrid(userId) {
             `;
             bookEl.addEventListener('click', () => {
                 sessionStorage.setItem('selectedBook', JSON.stringify(book));
-                window.location.href = './livro.html';
+                window.location.href = '/livro';
             });
             container.appendChild(bookEl);
         });

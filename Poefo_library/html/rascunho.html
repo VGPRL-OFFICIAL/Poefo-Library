@@ -129,11 +129,11 @@
                 <span class="app-title">Poefo Libraly</span>
             </div>
             <nav class="nav-menu">
-                <a href="./home.at.html" class="nav-link">Início</a>
-                <a href="./games_menu.html" class="nav-link">Games</a>
-                <a href="./feed.html" class="nav-link">Feed</a>
-                <a href="./editor.html" class="nav-link active">Criar</a>
-                <a href="./perfil.html" class="nav-link">Conta</a>
+                <a href="/inicio" class="nav-link">Início</a>
+                <a href="/jogos" class="nav-link">Games</a>
+                <a href="/feed" class="nav-link">Feed</a>
+                <a href="/criar" class="nav-link active">Criar</a>
+                <a href="/perfil" class="nav-link">Conta</a>
             </nav>
         </aside>
 
@@ -279,7 +279,7 @@
             lucide.createIcons();
             if (!draftId) {
                 alert("Erro: ID do rascunho não encontrado.");
-                window.location.href = 'editor.html';
+                window.location.href = '/criar';
                 return;
             }
 
@@ -311,7 +311,7 @@
                 loadPageContent(activePageIndex);
             } else {
                 alert("Rascunho não encontrado. Redirecionando.");
-                window.location.href = 'editor.html';
+                window.location.href = '/criar';
             }
         }
 
@@ -584,7 +584,7 @@
 
                     alert(`Projeto "${importedData.bookTitle}" importado com sucesso! Abrindo editor...`);
 
-                    window.location.href = `./editor_draft.html?id=${newDraftId}`;
+                    window.location.href = `/rascunho?id=${newDraftId}`;
 
                 } catch (error) {
                     alert("Erro ao ler o arquivo: Formato JSON inválido.");
@@ -609,7 +609,7 @@
 
                     alert(`O rascunho "${bookTitle}" foi excluído com sucesso.`);
                     localStorage.removeItem(DRAFT_ID_KEY);
-                    window.location.href = 'editor.html'; // Redireciona para a lista de rascunhos
+                    window.location.href = '/criar'; // Redireciona para a lista de rascunhos
                 } else {
                     alert("Erro: Rascunho não encontrado para exclusão.");
                 }
@@ -645,7 +645,7 @@
         function saveAndGoBack() {
             saveDraft();
             localStorage.removeItem(DRAFT_ID_KEY);
-            window.location.href = 'editor.html';
+            window.location.href = '/criar';
         }
 
         window.addEventListener('resize', () => {
