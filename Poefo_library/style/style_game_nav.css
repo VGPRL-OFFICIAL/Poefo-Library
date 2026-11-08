@@ -1,0 +1,27 @@
+.game-menu-back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    min-height: 42px;
+    margin: 0 0 20px;
+    padding: 10px 16px;
+    border: 1px solid #121212;
+    border-radius: 999px;
+    background: #121212;
+    color: #fff;
+    font: 600 0.9rem/1.2 'Plus Jakarta Sans', sans-serif;
+    text-decoration: none;
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.game-menu-back:hover {
+    transform: translateX(-2px);
+    border-color: #383838;
+    background: #383838;
+}
+
+.game-menu-back:focus-visible {
+    outline: 3px solid #8b8b8b;
+    outline-offset: 3px;
+}

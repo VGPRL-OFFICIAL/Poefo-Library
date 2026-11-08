@@ -22,6 +22,7 @@
         .btn-voltar { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: #444; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px; font-weight: 600; }
         @media (max-width: 768px) { .memory-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     </style>
+    <link rel="stylesheet" href="../style/style_game_nav.css">
 </head>
 <body>
     <div class="app-container">
@@ -40,12 +41,12 @@
         </aside>
 
         <main class="main-content">
-            <button onclick="history.back()" class="btn-voltar"><i class="fas fa-arrow-left"></i> Voltar ao Menu</button>
+            <a href="/jogos" class="game-menu-back"><i class="fas fa-arrow-left" aria-hidden="true"></i> Voltar ao menu</a>
 
             <div class="game-container">
                 <div class="game-header">
                     <div>
-                        <h2>Scribe - Memória Literária</h2>
+                        <h2>Memória Literária</h2>
                         <p style="margin:4px 0 0; color:#666;">Encontre os pares de temas literários e some pontos.</p>
                     </div>
                     <div class="meta-indicators">

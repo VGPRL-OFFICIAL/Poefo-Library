@@ -22,6 +22,7 @@
         .btn-voltar { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: #444; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px; font-weight: 600; }
         .result { margin-top: 12px; font-weight: 700; color: #166534; }
     </style>
+    <link rel="stylesheet" href="../style/style_game_nav.css">
 </head>
 <body>
     <div class="app-container">
@@ -40,12 +41,12 @@
         </aside>
 
         <main class="main-content">
-            <button onclick="history.back()" class="btn-voltar"><i class="fas fa-arrow-left"></i> Voltar ao Menu</button>
+            <a href="/jogos" class="game-menu-back"><i class="fas fa-arrow-left" aria-hidden="true"></i> Voltar ao menu</a>
 
             <div class="game-container">
                 <div class="game-header">
                     <div>
-                        <h2>Scribe - Quiz Literário</h2>
+                        <h2>Quiz Literário</h2>
                         <p style="margin:4px 0 0; color:#666;">Responda rápido e ganhe pontos por acerto.</p>
                     </div>
                     <div class="meta-indicators">

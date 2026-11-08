@@ -119,6 +119,7 @@
         }
         @media (max-width: 768px) { .board-layout { grid-template-columns: 1fr; } }
     </style>
+    <link rel="stylesheet" href="../style/style_game_nav.css">
 </head>
 <body>
     <div class="app-container">
@@ -137,14 +138,12 @@
         </aside>
 
         <main class="main-content">
-            <button onclick="history.back()" class="btn-voltar">
-                <i class="fas fa-arrow-left"></i> Voltar ao Menu
-            </button>
+            <a href="/jogos" class="game-menu-back"><i class="fas fa-arrow-left" aria-hidden="true"></i> Voltar ao menu</a>
 
             <div class="game-container">
                 <div class="game-header">
                     <div>
-                        <h2>Scribe - Caça-Palavras Realtime</h2>
+                        <h2>Caça-Palavras Realtime</h2>
                         <p style="margin:4px 0 0; color:#666;">Fases automáticas com livros e autores obtidos via API</p>
                     </div>
                     <div class="meta-indicators">
