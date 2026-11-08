@@ -1,6 +1,22 @@
 window.PoefoAuthProfile = (() => {
+    const PRIVACY_POLICY_VERSION = '1.0';
+
     function usersRef() {
         return firebase.database().ref('usuarios');
+    }
+
+    function hasCurrentPrivacyConsent(profile) {
+        return profile?.data?.privacyConsent?.version === PRIVACY_POLICY_VERSION;
+    }
+
+    async function savePrivacyConsent(profile, source) {
+        const privacyConsent = {
+            version: PRIVACY_POLICY_VERSION,
+            acceptedAt: firebase.database.ServerValue.TIMESTAMP,
+            source
+        };
+        await usersRef().child(profile.id).child('privacyConsent').set(privacyConsent);
+        return { ...profile, data: { ...profile.data, privacyConsent } };
     }
 
     function firstProfile(snapshot) {
@@ -123,5 +139,15 @@ window.PoefoAuthProfile = (() => {
         });
     }
 
-    return { findByEmail, findByLogin, findByAuthUid, attachAuthUser, createProfileForAuthUser, saveSession };
+    return {
+        PRIVACY_POLICY_VERSION,
+        hasCurrentPrivacyConsent,
+        savePrivacyConsent,
+        findByEmail,
+        findByLogin,
+        findByAuthUid,
+        attachAuthUser,
+        createProfileForAuthUser,
+        saveSession
+    };
 })();

@@ -23,6 +23,7 @@
       "rewrites": [
         { "source": "/cadastro", "destination": "/html/cadastro.html" },
         { "source": "/chat", "destination": "/html/chat.html" },
+        { "source": "/configuracoes", "destination": "/html/configuracoes.html" },
         { "source": "/criar", "destination": "/html/criar.html" },
         { "source": "/rascunho", "destination": "/html/rascunho.html" },
         { "source": "/feed", "destination": "/html/feed.html" },
@@ -31,6 +32,8 @@
         { "source": "/livro", "destination": "/html/livro.html" },
         { "source": "/login", "destination": "/html/login.html" },
         { "source": "/perfil", "destination": "/html/perfil.html" },
+        { "source": "/permissoes", "destination": "/html/permissoes.html" },
+        { "source": "/privacidade", "destination": "/html/privacidade.html" },
         { "source": "/publicar", "destination": "/html/publicar.html" },
         { "source": "/leitor", "destination": "/html/leitor.html" },
         { "source": "/carregando", "destination": "/html/carregando.html" },
@@ -76,6 +79,7 @@
       "rewrites": [
         { "source": "/cadastro", "destination": "/html/cadastro.html" },
         { "source": "/chat", "destination": "/html/chat.html" },
+        { "source": "/configuracoes", "destination": "/html/configuracoes.html" },
         { "source": "/criar", "destination": "/html/criar.html" },
         { "source": "/rascunho", "destination": "/html/rascunho.html" },
         { "source": "/feed", "destination": "/html/feed.html" },
@@ -84,6 +88,8 @@
         { "source": "/livro", "destination": "/html/livro.html" },
         { "source": "/login", "destination": "/html/login.html" },
         { "source": "/perfil", "destination": "/html/perfil.html" },
+        { "source": "/permissoes", "destination": "/html/permissoes.html" },
+        { "source": "/privacidade", "destination": "/html/privacidade.html" },
         { "source": "/publicar", "destination": "/html/publicar.html" },
         { "source": "/leitor", "destination": "/html/leitor.html" },
         { "source": "/carregando", "destination": "/html/carregando.html" },
