@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f4f2ee">
+    <title>Permissões - Poefo Library</title>
+    <link rel="icon" href="../images/Logo_Poefo.png" type="image/png">
+    <link rel="stylesheet" href="../style/style_theme.css">
+    <link rel="stylesheet" href="../style/style_privacy.css">
+    <script src="../scripts/theme.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="../scripts/firebase-config.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="../scripts/auth-profile.js"></script>
+</head>
+<body class="privacy-page">
+    <main class="privacy-card">
+        <div class="privacy-brand">
+            <img src="../images/icon_logo.png" alt="">
+            <span>Poefo Library</span>
+        </div>
+        <span class="privacy-eyebrow">Você decide</span>
+        <h1>Permissões do dispositivo</h1>
+        <p class="privacy-intro">
+            Algumas funções podem pedir acesso ao navegador. Você pode permitir agora ou continuar
+            sem permitir; quando necessário, a Poefo explicará e solicitará novamente no contexto do recurso.
+        </p>
+
+        <div class="permission-list">
+            <section class="permission-item">
+                <div>
+                    <h2>Notificações</h2>
+                    <p>Para receber avisos de mensagens e atividade do chat.</p>
+                </div>
+                <button type="button" id="allow-notifications">Permitir</button>
+            </section>
+            <section class="permission-item">
+                <div>
+                    <h2>Microfone</h2>
+                    <p>Para gravar mensagens de voz no chat. O teste termina logo após confirmar o acesso.</p>
+                </div>
+                <button type="button" id="allow-microphone">Testar microfone</button>
+            </section>
+            <section class="permission-item">
+                <div>
+                    <h2>Arquivos</h2>
+                    <p>Não é necessário liberar acesso geral. Ao anexar algo, você escolhe o arquivo pelo seletor do navegador.</p>
+                </div>
+            </section>
+        </div>
+        <p class="permission-status" id="permission-status" role="status" aria-live="polite"></p>
+        <div class="privacy-actions">
+            <button type="button" class="privacy-button permission-continue" id="continue-button">Continuar</button>
+        </div>
+    </main>
+    <script>
+        if (!firebase.apps.length) {
+            firebase.initializeApp(window.POEFO_FIREBASE_CONFIG);
+        }
+
+        const auth = firebase.auth();
+        const permissionStatus = document.getElementById('permission-status');
+        const notificationsButton = document.getElementById('allow-notifications');
+        const microphoneButton = document.getElementById('allow-microphone');
+        const continueButton = document.getElementById('continue-button');
+        const requestedNextPath = new URLSearchParams(window.location.search).get('next');
+        const allowedNextPaths = ['/carregando', '/inicio', '/perfil'];
+        const nextPath = allowedNextPaths.includes(requestedNextPath) ? requestedNextPath : '/inicio';
+        let currentUser = null;
+
+        auth.onAuthStateChanged(async user => {
+            if (!user) {
+                window.location.replace('/login');
+                return;
+            }
+            try {
+                const profile = await PoefoAuthProfile.findByAuthUid(user.uid);
+                if (!profile || !PoefoAuthProfile.hasCurrentPrivacyConsent(profile)) {
+                    await auth.signOut();
+                    window.location.replace('/login');
+                    return;
+                }
+                currentUser = user;
+            } catch (error) {
+                console.error('Não foi possível validar o perfil para configurar permissões:', error);
+                permissionStatus.textContent = 'Não foi possível validar sua conta. Entre novamente e tente outra vez.';
+            }
+        });
+
+        notificationsButton.addEventListener('click', async () => {
+            notificationsButton.disabled = true;
+            try {
+                if (!('Notification' in window)) {
+                    throw new Error('Este navegador não oferece suporte a notificações.');
+                }
+                const permission = await Notification.requestPermission();
+                permissionStatus.textContent = permission === 'granted'
+                    ? 'Notificações permitidas.'
+                    : permission === 'denied'
+                        ? 'Notificações recusadas. Você pode alterá-las nas configurações do navegador.'
+                        : 'Você optou por não permitir notificações agora.';
+            } catch (error) {
+                console.error('Não foi possível solicitar notificações:', error);
+                permissionStatus.textContent = error.message || 'Não foi possível solicitar notificações.';
+            } finally {
+                notificationsButton.disabled = false;
+            }
+        });
+
+        microphoneButton.addEventListener('click', async () => {
+            microphoneButton.disabled = true;
+            try {
+                if (!navigator.mediaDevices?.getUserMedia) {
+                    throw new Error('Este navegador ou conexão não permite solicitar o microfone.');
+                }
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                stream.getTracks().forEach(track => track.stop());
+                permissionStatus.textContent = 'Microfone permitido. O áudio de teste foi encerrado.';
+            } catch (error) {
+                console.error('Não foi possível solicitar o microfone:', error);
+                permissionStatus.textContent = error.name === 'NotAllowedError'
+                    ? 'Microfone recusado. Você pode alterá-lo nas configurações do navegador.'
+                    : error.message || 'Não foi possível solicitar o microfone.';
+            } finally {
+                microphoneButton.disabled = false;
+            }
+        });
+
+        continueButton.addEventListener('click', () => {
+            if (!currentUser) {
+                permissionStatus.textContent = 'Aguarde a validação da sua conta antes de continuar.';
+                return;
+            }
+            localStorage.setItem(`poefoPermissionsSetup_v1_${currentUser.uid}`, 'done');
+            window.location.replace(nextPath);
+        });
+    </script>
+</body>
+</html>

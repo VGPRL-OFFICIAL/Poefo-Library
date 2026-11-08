@@ -57,6 +57,11 @@
                 <button type="button" id="btn-esqueci-senha" class="forgot-password">Esqueci a senha</button>
             </div>
 
+            <label class="privacy-consent">
+                <input type="checkbox" id="privacy-consent">
+                <span>Li e aceito a <a href="/privacidade?retorno=/login">Política de Privacidade</a>.</span>
+            </label>
+
          <!-- <div class="remember-me-group">
                 <input type="checkbox" id="remember-me">
                 <label for="remember-me">Lembrar Login</label>
@@ -83,6 +88,7 @@
             firebase.initializeApp(window.POEFO_FIREBASE_CONFIG);
         }
         const auth = firebase.auth();
+        const persistenceReady = auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
         document.addEventListener('DOMContentLoaded', () => {
             const loginForm = document.getElementById('loginForm');
@@ -94,7 +100,14 @@
             const btnGoogle = document.getElementById('btn-google');
             const btnForgotPassword = document.getElementById('btn-esqueci-senha');
             const authFeedback = document.getElementById('auth-feedback');
+            const privacyConsentCheckbox = document.getElementById('privacy-consent');
             const googleSignupStorageKey = 'poefoGoogleSignup';
+            const privacyConsentStorageKey = 'poefoPrivacyConsentPending';
+            let authFlowInProgress = false;
+
+            if (sessionStorage.getItem(privacyConsentStorageKey) === PoefoAuthProfile.PRIVACY_POLICY_VERSION) {
+                privacyConsentCheckbox.checked = true;
+            }
 
             // Aqui eu controlo o botão que mostra ou oculta a senha.
             const togglePasswordButton = document.getElementById('togglePassword');
@@ -117,13 +130,24 @@
 
             loadSavedLogin();
 
+            function requirePrivacyAcceptance(profile) {
+                if (!PoefoAuthProfile.hasCurrentPrivacyConsent(profile) && !privacyConsentCheckbox.checked) {
+                    throw new Error('Para entrar, aceite a Política de Privacidade.');
+                }
+            }
+
             async function completeLogin(authUser, profile) {
                 if (profile.data.bloqueado === true) {
                     await auth.signOut();
                     throw new Error('Esta conta está bloqueada. Entre em contato com a administração.');
                 }
 
+                requirePrivacyAcceptance(profile);
                 profile = await PoefoAuthProfile.attachAuthUser(profile, authUser);
+                if (!PoefoAuthProfile.hasCurrentPrivacyConsent(profile)) {
+                    profile = await PoefoAuthProfile.savePrivacyConsent(profile, 'login');
+                }
+                sessionStorage.removeItem(privacyConsentStorageKey);
                 PoefoAuthProfile.saveSession(profile, authUser);
                 if (rememberMeCheckbox?.checked) {
                     localStorage.setItem('rememberedUsername', profile.data.nome_usuario || authUser.email);
@@ -132,7 +156,10 @@
                 }
                 feedback.textContent = `Login efetuado como ${profile.data.nome_usuario || authUser.email}! Redirecionando...`;
                 window.setTimeout(() => {
-                    window.location.href = '/carregando';
+                    const permissionsKey = `poefoPermissionsSetup_v1_${authUser.uid}`;
+                    window.location.href = localStorage.getItem(permissionsKey) === 'done'
+                        ? '/carregando'
+                        : '/permissoes?next=%2Fcarregando';
                 }, 800);
             }
 
@@ -159,7 +186,9 @@
                     return;
                 }
 
+                authFlowInProgress = true;
                 try {
+                    await persistenceReady;
                     let profile = null;
                     let email = enteredUsername;
                     if (!enteredUsername.includes('@')) {
@@ -169,11 +198,14 @@
                             throw new Error('Esta conta está bloqueada. Entre em contato com a administração.');
                         }
                         email = profile.data.email;
+                    } else {
+                        profile = await PoefoAuthProfile.findByEmail(email);
                     }
 
                     if (!email || !email.includes('@')) {
                         throw new Error('Esta conta não possui um e-mail válido vinculado.');
                     }
+                    requirePrivacyAcceptance(profile);
 
                     try {
                         const credential = await auth.signInWithEmailAndPassword(email, enteredPassword);
@@ -212,14 +244,17 @@
                 }
 
                 if (feedback.textContent.indexOf('Redirecionando') === -1) {
+                    authFlowInProgress = false;
                     btnEntrar.disabled = false;
                 }
             });
 
             btnGoogle.addEventListener('click', async () => {
                 btnGoogle.disabled = true;
+                authFlowInProgress = true;
                 authFeedback.textContent = 'Conectando com o Google...';
                 try {
+                    await persistenceReady;
                     const provider = new firebase.auth.GoogleAuthProvider();
                     let googleIdToken;
                     try {
@@ -244,6 +279,11 @@
                         throw new Error('O servidor não retornou os dados necessários para concluir o login.');
                     }
 
+                    if (googleLogin.profileExists) {
+                        const existingProfile = await PoefoAuthProfile.findByEmail(googleLogin.email);
+                        requirePrivacyAcceptance(existingProfile);
+                    }
+
                     const authCredential = await auth.signInWithCustomToken(googleLogin.token);
                     if (!googleLogin.profileExists) {
                         sessionStorage.setItem(googleSignupStorageKey, JSON.stringify({
@@ -260,10 +300,8 @@
                     if (!profile) {
                         throw new Error('O perfil Poefo não foi encontrado após a validação. Tente novamente.');
                     }
-                    const linkedProfile = await PoefoAuthProfile.attachAuthUser(profile, authCredential.user);
-                    PoefoAuthProfile.saveSession(linkedProfile, authCredential.user);
                     authFeedback.textContent = 'Login efetuado. Redirecionando...';
-                    window.location.href = '/carregando';
+                    await completeLogin(authCredential.user, profile);
                 } catch (error) {
                     console.error('Erro no login com Google:', error);
                     authFeedback.textContent = `Não foi possível entrar com Google: ${error.message || 'Tente novamente.'}`;
@@ -275,6 +313,7 @@
                         }
                     }
                 } finally {
+                    authFlowInProgress = false;
                     btnGoogle.disabled = false;
                 }
             });
@@ -299,6 +338,27 @@
                     authFeedback.textContent = `Não foi possível enviar o link de recuperação: ${error.message}`;
                 } finally {
                     btnForgotPassword.disabled = false;
+                }
+            });
+
+            auth.onAuthStateChanged(async (authUser) => {
+                if (!authUser || authFlowInProgress) return;
+                try {
+                    await persistenceReady;
+                    const profile = await PoefoAuthProfile.findByAuthUid(authUser.uid);
+                    if (!profile || !PoefoAuthProfile.hasCurrentPrivacyConsent(profile)) {
+                        await auth.signOut();
+                        feedback.textContent = 'Antes de continuar, aceite a Política de Privacidade.';
+                        return;
+                    }
+                    PoefoAuthProfile.saveSession(profile, authUser);
+                    const permissionsKey = `poefoPermissionsSetup_v1_${authUser.uid}`;
+                    window.location.replace(localStorage.getItem(permissionsKey) === 'done'
+                        ? '/inicio'
+                        : '/permissoes?next=%2Finicio');
+                } catch (error) {
+                    console.error('Não foi possível verificar a sessão persistente:', error);
+                    authFeedback.textContent = `Não foi possível verificar sua sessão: ${error.message}`;
                 }
             });
         });

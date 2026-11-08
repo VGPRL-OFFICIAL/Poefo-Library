@@ -61,6 +61,11 @@
                 <label for="foto_perfil" id="file-label" class="file-label-text">Selecionar Foto de Perfil (Opcional)</label>
                 <input type="file" id="foto_perfil" accept="image/*"> 
             </div>
+
+            <label class="privacy-consent">
+                <input type="checkbox" id="privacy-consent" required>
+                <span>Li e aceito a <a href="/privacidade?retorno=/cadastro">Política de Privacidade</a>.</span>
+            </label>
             
             <p id="feedback" style="color: var(--secondary-color); text-align: center; margin-bottom: 15px; font-weight: 600;"></p>
             
@@ -75,6 +80,7 @@
         if (!firebase.apps.length) {
             firebase.initializeApp(window.POEFO_FIREBASE_CONFIG);
         }
+        const persistenceReady = firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
         // Inicializa o Storage (para a foto de perfil)
         const storage = firebase.storage();
@@ -94,8 +100,14 @@
         const inputFoto = document.getElementById('foto_perfil');
         const labelFoto = document.getElementById('file-label');
         const googleSignupStorageKey = 'poefoGoogleSignup';
+        const privacyConsentStorageKey = 'poefoPrivacyConsentPending';
+        const privacyConsentCheckbox = document.getElementById('privacy-consent');
         const googleSignupData = sessionStorage.getItem(googleSignupStorageKey);
         let pendingGoogleSignup = null;
+
+        if (sessionStorage.getItem(privacyConsentStorageKey) === PoefoAuthProfile.PRIVACY_POLICY_VERSION) {
+            privacyConsentCheckbox.checked = true;
+        }
 
         if (googleSignupData) {
             try {
@@ -176,6 +188,12 @@
             let foto_url = DEFAULT_PROFILE_PIC;
             const googleAuthUser = firebase.auth().currentUser;
             const isGoogleSignup = Boolean(pendingGoogleSignup);
+
+            if (!privacyConsentCheckbox.checked) {
+                feedback.textContent = 'Para criar sua conta, aceite a Política de Privacidade.';
+                btnCadastro.disabled = false;
+                return;
+            }
             
             if (senha !== confirmar_senha) {
                 feedback.textContent = '❌ Erro: A senha e a confirmação de senha não coincidem!';
@@ -184,6 +202,7 @@
             }
 
             try {
+                await persistenceReady;
                 if (isGoogleSignup) {
                     const normalizeIdentity = value => String(value || '').trim().replace(/\s+/g, ' ').toLocaleLowerCase('pt-BR');
                     const tokenResult = googleAuthUser && await googleAuthUser.getIdTokenResult();
@@ -247,7 +266,12 @@
                     nome_completo,
                     nome_usuario,
                     foto_perfil: foto_url,
-                    criadoEm: firebase.database.ServerValue.TIMESTAMP
+                    criadoEm: firebase.database.ServerValue.TIMESTAMP,
+                    privacyConsent: {
+                        version: PoefoAuthProfile.PRIVACY_POLICY_VERSION,
+                        acceptedAt: firebase.database.ServerValue.TIMESTAMP,
+                        source: 'signup'
+                    }
                 };
 
                 try {
@@ -265,11 +289,15 @@
                 
                 // Sucesso
                 const profile = await PoefoAuthProfile.attachAuthUser({ id: novoUsuarioRef.key, data: novoUsuario }, credential.user);
+                sessionStorage.removeItem(privacyConsentStorageKey);
                 PoefoAuthProfile.saveSession(profile, credential.user);
                 if (isGoogleSignup) sessionStorage.removeItem(googleSignupStorageKey);
                 feedback.textContent = `✅ Sucesso! Perfil ${nome_usuario} criado. Redirecionando...`;
                 setTimeout(() => {
-                    window.location.href = '/carregando';
+                    const permissionsKey = `poefoPermissionsSetup_v1_${credential.user.uid}`;
+                    window.location.href = localStorage.getItem(permissionsKey) === 'done'
+                        ? '/carregando'
+                        : '/permissoes?next=%2Fcarregando';
                 }, 800);
 
             } catch (error) {

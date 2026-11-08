@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f4f2ee">
+    <title>Política de Privacidade - Poefo Library</title>
+    <link rel="icon" href="../images/Logo_Poefo.png" type="image/png">
+    <link rel="stylesheet" href="../style/style_theme.css">
+    <link rel="stylesheet" href="../style/style_privacy.css">
+    <script src="../scripts/theme.js"></script>
+    <script src="../scripts/auth-profile.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="../scripts/firebase-config.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+</head>
+<body class="privacy-page">
+    <main class="privacy-card">
+        <div class="privacy-brand">
+            <img src="../images/icon_logo.png" alt="">
+            <span>Poefo Library</span>
+        </div>
+        <span class="privacy-eyebrow">Privacidade e transparência</span>
+        <h1>Política de Privacidade</h1>
+        <p>Versão <span id="privacy-version"></span></p>
+        <p class="privacy-intro">
+            Esta política explica quais dados são usados para oferecer os recursos da Poefo Library.
+            Ao aceitar e concluir o login ou cadastro, a versão aceita e a data ficam registradas no seu perfil.
+        </p>
+
+        <section>
+            <h2>Dados da conta e do perfil</h2>
+            <p>
+                Usamos o Firebase Authentication para autenticar sua conta por e-mail e senha ou por
+                Google. O perfil pode incluir nome, nome de usuário, e-mail e foto que você escolher.
+            </p>
+        </section>
+        <section>
+            <h2>Conteúdos e atividade</h2>
+            <p>
+                Dados que você envia ou cria na aplicação, como publicações, mensagens, imagens e
+                progresso, são usados para disponibilizar os recursos correspondentes. Esses dados
+                podem ser armazenados nos serviços Firebase usados pela aplicação.
+            </p>
+        </section>
+        <section>
+            <h2>Armazenamento no dispositivo</h2>
+            <p>
+                A aplicação usa armazenamento local do navegador para manter sua sessão autenticada
+                pelo Firebase e guardar informações necessárias à interface. Senhas não são gravadas
+                nesse armazenamento; a autenticação é gerenciada pelo Firebase.
+            </p>
+        </section>
+        <section>
+            <h2>Permissões do dispositivo</h2>
+            <p>
+                Notificações e microfone são opcionais. O navegador só será consultado quando você
+                solicitar o recurso ou escolher testar a permissão na tela de permissões. Para anexar
+                um arquivo, você escolhe o arquivo no seletor do próprio navegador; não existe uma
+                permissão geral de acesso aos seus arquivos.
+            </p>
+        </section>
+        <section>
+            <h2>Suas escolhas</h2>
+            <p>
+                Você pode recusar esta política e não entrar na aplicação. As permissões opcionais
+                podem ser negadas e solicitadas novamente quando um recurso que dependa delas for usado.
+                As permissões concedidas também podem ser alteradas nas configurações do navegador.
+            </p>
+        </section>
+
+        <div class="privacy-actions">
+            <button type="button" class="privacy-button" id="accept-privacy">Aceitar e continuar</button>
+            <button type="button" class="privacy-button privacy-button-secondary" id="decline-privacy">Não aceito</button>
+        </div>
+        <div class="privacy-actions" id="privacy-read-actions" hidden>
+            <a class="privacy-button privacy-button-secondary" id="privacy-back-link" href="/configuracoes">Voltar às configurações</a>
+        </div>
+    </main>
+    <script>
+        if (!firebase.apps.length) {
+            firebase.initializeApp(window.POEFO_FIREBASE_CONFIG);
+        }
+
+        const consentStorageKey = 'poefoPrivacyConsentPending';
+        document.getElementById('privacy-version').textContent = PoefoAuthProfile.PRIVACY_POLICY_VERSION;
+        const allowedReturnPaths = ['/login', '/cadastro'];
+        const requestedReturnPath = new URLSearchParams(window.location.search).get('retorno');
+        const isReadOnly = new URLSearchParams(window.location.search).get('modo') === 'leitura';
+        const returnPath = requestedReturnPath === '/configuracoes'
+            ? '/configuracoes'
+            : allowedReturnPaths.includes(requestedReturnPath) ? requestedReturnPath : '/login';
+
+        if (isReadOnly) {
+            document.querySelector('.privacy-actions').hidden = true;
+            document.getElementById('privacy-read-actions').hidden = false;
+            document.getElementById('privacy-back-link').href = returnPath;
+        }
+
+        document.getElementById('accept-privacy').addEventListener('click', () => {
+            sessionStorage.setItem(consentStorageKey, PoefoAuthProfile.PRIVACY_POLICY_VERSION);
+            window.location.replace(returnPath);
+        });
+
+        document.getElementById('decline-privacy').addEventListener('click', async () => {
+            try {
+                await firebase.auth().signOut();
+            } catch (error) {
+                console.error('Não foi possível encerrar a sessão após recusar a política:', error);
+            }
+            sessionStorage.removeItem(consentStorageKey);
+            sessionStorage.removeItem('poefoGoogleSignup');
+            ['currentUserId', 'currentUserName', 'currentUserPic', 'currentUserAvatar', 'currentUserAuthUid']
+                .forEach(key => localStorage.removeItem(key));
+            window.location.replace('/login');
+        });
+    </script>
+</body>
+</html>

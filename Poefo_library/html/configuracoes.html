@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f4f2ee">
+    <title>Configurações - Poefo Library</title>
+    <link rel="icon" href="../images/Logo_Poefo.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="../style/style_theme.css">
+    <link rel="stylesheet" href="../style/style_privacy.css">
+    <link rel="stylesheet" href="../style/style_configuracoes.css">
+    <script src="../scripts/theme.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="../scripts/firebase-config.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="../scripts/auth-profile.js"></script>
+</head>
+<body class="privacy-page settings-page">
+    <main class="privacy-card settings-card" id="settings-content" hidden>
+        <header class="settings-header">
+            <a href="/perfil" class="settings-back" aria-label="Voltar ao perfil" title="Voltar ao perfil">
+                <i class="fas fa-arrow-left" aria-hidden="true"></i>
+            </a>
+            <div class="privacy-brand">
+                <img src="../images/icon_logo.png" alt="">
+                <span>Poefo Library</span>
+            </div>
+            <span class="settings-header-spacer" aria-hidden="true"></span>
+        </header>
+
+        <span class="privacy-eyebrow">Personalize sua experiência</span>
+        <h1>Configurações</h1>
+        <p class="privacy-intro">Gerencie a aparência e encontre rapidamente as opções de privacidade da sua conta.</p>
+
+        <section class="settings-section" aria-labelledby="appearance-heading">
+            <div class="settings-section-icon" aria-hidden="true"><i class="fas fa-palette"></i></div>
+            <div class="settings-section-content">
+                <h2 id="appearance-heading">Aparência</h2>
+                <p>Escolha o tema que prefere usar na Poefo Library.</p>
+                <div class="settings-theme-control">
+                    <span id="theme-description">Tema claro</span>
+                    <button class="theme-toggle settings-theme-toggle" id="theme-toggle" type="button"
+                        aria-label="Ativar tema escuro" aria-pressed="false" title="Ativar tema escuro">
+                        <i class="fas fa-sun theme-icon-sun" aria-hidden="true"></i>
+                        <i class="fas fa-moon theme-icon-moon" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section class="settings-section" aria-labelledby="permissions-heading">
+            <div class="settings-section-icon" aria-hidden="true"><i class="fas fa-shield-alt"></i></div>
+            <div class="settings-section-content">
+                <h2 id="permissions-heading">Permissões</h2>
+                <p>Revise notificações e microfone. Você pode permitir ou negar o acesso quando quiser.</p>
+                <a class="settings-action" href="/permissoes?next=%2Fconfiguracoes">
+                    Gerenciar permissões <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                </a>
+            </div>
+        </section>
+
+        <section class="settings-section" aria-labelledby="privacy-heading">
+            <div class="settings-section-icon" aria-hidden="true"><i class="fas fa-user-lock"></i></div>
+            <div class="settings-section-content">
+                <h2 id="privacy-heading">Privacidade</h2>
+                <p>Consulte quais dados são utilizados e como funcionam as permissões opcionais.</p>
+                <a class="settings-action" href="/privacidade?modo=leitura&retorno=%2Fconfiguracoes">
+                    Ler Política de Privacidade <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                </a>
+            </div>
+        </section>
+    </main>
+    <p class="settings-loading" id="settings-loading" role="status">Verificando sua conta...</p>
+
+    <script>
+        if (!firebase.apps.length) {
+            firebase.initializeApp(window.POEFO_FIREBASE_CONFIG);
+        }
+
+        const settingsContent = document.getElementById('settings-content');
+        const settingsLoading = document.getElementById('settings-loading');
+        const themeDescription = document.getElementById('theme-description');
+        const themeToggle = document.getElementById('theme-toggle');
+
+        function updateThemeDescription() {
+            themeDescription.textContent = PoefoTheme.getTheme() === 'dark' ? 'Tema escuro' : 'Tema claro';
+        }
+
+        updateThemeDescription();
+        themeToggle.addEventListener('click', () => {
+            window.setTimeout(updateThemeDescription, 0);
+        });
+
+        firebase.auth().onAuthStateChanged(async user => {
+            if (!user) {
+                window.location.replace('/login');
+                return;
+            }
+
+            try {
+                const profile = await PoefoAuthProfile.findByAuthUid(user.uid);
+                if (!profile || !PoefoAuthProfile.hasCurrentPrivacyConsent(profile)) {
+                    await firebase.auth().signOut();
+                    window.location.replace('/login');
+                    return;
+                }
+                settingsLoading.hidden = true;
+                settingsContent.hidden = false;
+            } catch (error) {
+                console.error('Não foi possível validar a conta para abrir as configurações:', error);
+                settingsLoading.textContent = `Não foi possível verificar sua conta: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>

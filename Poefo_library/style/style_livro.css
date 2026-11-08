@@ -23,12 +23,45 @@ body {
     -webkit-tap-highlight-color: transparent;
 }
 
+body.livro-page .app-container {
+    width: 100%;
+}
+
+body.livro-page .sidebar {
+    flex: 0 0 240px;
+    border-right: 1px solid var(--theme-border);
+    box-shadow: none;
+}
+
+body.livro-page .main-content {
+    flex: 1 1 0;
+    width: calc(100% - 240px);
+    max-width: none;
+    margin: 0;
+    padding: 24px clamp(20px, 3vw, 48px) 100px;
+}
+
+body.livro-page .main-screen,
+body.livro-page #book-details-container {
+    width: 100%;
+    max-width: none;
+}
+
 .main-screen {
     padding-bottom: 70px;
     min-height: 100vh;
 }
 
 @media (max-width: 768px) {
+    body.livro-page .sidebar {
+        display: none;
+    }
+
+    body.livro-page .main-content {
+        width: 100%;
+        padding: 16px 16px 90px;
+    }
+
     .main-screen {
         padding-bottom: 130px;
     }

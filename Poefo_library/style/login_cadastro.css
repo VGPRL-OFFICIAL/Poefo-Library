@@ -343,3 +343,29 @@ h1 {
     position: relative;
     z-index: 2;
 }
+
+.privacy-consent {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    margin: 4px 0 14px;
+    color: var(--text-medium);
+    font-size: 13px;
+    line-height: 1.5;
+    text-align: left;
+    position: relative;
+    z-index: 2;
+}
+
+.privacy-consent input {
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    margin: 2px 0 0;
+    accent-color: var(--primary-color);
+}
+
+.privacy-consent a {
+    color: var(--primary-color);
+    font-weight: 700;
+}
